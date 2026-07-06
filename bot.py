@@ -16,7 +16,7 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-TOKEN = "MTUyMzYyOTM4ODMwMDU1MDI4Ng.GogWMf.CccNksrlF_8Tu6LYmPpHtxhtimche9KGWnRoqk"
+TOKEN = "DEIN_NEUER_TOKEN"
 
 counter = {}
 
