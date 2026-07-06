@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from threading import Thread
 import discord
+from discord.ext import commands
 from discord.ui import Button, View
 
 app = Flask(__name__)
@@ -44,16 +45,23 @@ class CounterView(View):
         zahl = counter.get(self.user_id, 0)
         return f"**{name}** hat aktuell: **{zahl}**"
 
-class MyBot(discord.Bot):
-    async def on_ready(self):
-        print(f"Bot ist online als {self.user}")
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
-bot = MyBot()
+@bot.event
+async def on_ready():
+    print(f"Bot ist online als {bot.user}")
 
-@bot.slash_command(name="counter", description="Startet deinen persönlichen Counter")
-async def counter_cmd(ctx):
-    view = CounterView(ctx.author.id)
-    await ctx.respond(f"**{ctx.author.name}** hat aktuell: **0**", view=view)
+@bot.tree.command(name="counter", description="Startet deinen persönlichen Counter")
+async def counter_cmd(interaction: discord.Interaction):
+    view = CounterView(interaction.user.id)
+    await interaction.response.send_message(f"**{interaction.user.name}** hat aktuell: **0**", view=view)
+
+@bot.event
+async def on_message(message):
+    if message.content == "/counter":
+        view = CounterView(message.author.id)
+        await message.channel.send(f"**{message.author.name}** hat aktuell: **0**", view=view)
+    await bot.process_commands(message)
 
 keep_alive()
 bot.run(TOKEN)
